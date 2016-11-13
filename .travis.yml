@@ -6,7 +6,7 @@ sudo: false
 php:
   - 7
   - 7.1
-  - hhvm-3.11
+  - hhvm-3.12
   - nightly
 
 matrix:
