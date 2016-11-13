@@ -50,9 +50,6 @@ matrix:
     - php: nightly
     - php: hhvm-nightly
 
-before_script:
- - travis_retry composer self-update
-
 install:
  - if [[ $HHVMPHP7 == "yes" ]]; then echo hhvm.php7.all=1 >> /etc/hhvm/php.ini; fi
  - if [[ $DEPS == 'latest' ]]; then travis_retry composer update -o --prefer-source ; fi
@@ -60,8 +57,8 @@ install:
  - composer show
 
 script:
- - if [[ $TEST_COVERAGE == 'true' ]]; then vendor/bin/phpunit --coverage-clover ./clover.xml ; fi
- - if [[ $TEST_COVERAGE == 'true' ]]; then vendor/bin/php-cs-fixer fix src --level=psr2 --dry-run -vv ; fi
+ - vendor/bin/phpunit --coverage-clover ./clover.xml
+ - vendor/bin/php-cs-fixer fix src --level=psr2 --dry-run -vv
 
 after_script:
   - if [[ $TEST_COVERAGE == 'true' ]]; then curl -O -L https://scrutinizer-ci.com/ocular.phar; fi
