@@ -37,7 +37,7 @@
     },
 
     "conflict": {
-        "hhvm": "^3.12"
+        "hhvm": "*"
     },
 
     "require-dev": {
