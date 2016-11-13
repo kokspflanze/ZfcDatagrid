@@ -5,6 +5,34 @@ sudo: required
 dist: trusty
 group: edge
 
+env:
+  global:
+    - DEPS=latest
+
+matrix:
+  include:
+    - php: 7
+        - DEPS=lowest
+    - php: 7
+        - TEST_COVERAGE=true
+    - php: 7.1
+        - DEPS=lowest
+    - php: 7.1
+    - php: hhvm
+        - DEPS=lowest
+        - HHVMPHP7="yes"
+    - php: hhvm
+      env:
+        - HHVMPHP7="yes"
+    - php: hhvm-nightly
+        - DEPS=lowest
+        - HHVMPHP7="yes"
+    - php: hhvm-nightly
+      env:
+        - HHVMPHP7="yes"
+    - php: nightly
+        - DEPS=lowest
+    - php: nightly
 php:
   - 7
   - 7.1
@@ -17,19 +45,19 @@ matrix:
   - php: nightly
   - php: hhvm-nightly
 
-env:
-  matrix:
-    - DEPENDENCIES="--prefer-lowest --prefer-stable"
-    - DEPENDENCIES=""
-
 before_script:
+ - if [[ $HHVMPHP7 == "yes" ]]; then echo hhvm.php7.all=1 >> /etc/hhvm/php.ini; fi
  - composer self-update
- - composer update -o --prefer-source $DEPENDENCIES
+
+install:
+  - if [[ $DEPS == 'latest' ]]; then travis_retry composer update -o --prefer-source ; fi
+  - if [[ $DEPS == 'lowest' ]]; then travis_retry composer update -o --prefer-lowest --prefer-stable ; fi
+  - composer show
 
 script:
  - vendor/bin/phpunit --coverage-clover ./clover.xml
  - vendor/bin/php-cs-fixer fix src --level=psr2 --dry-run -vv
 
 after_script:
-  - if [ "$TRAVIS_PHP_VERSION" = "7.0" ]; then wget https://scrutinizer-ci.com/ocular.phar; fi
-  - if [ "$TRAVIS_PHP_VERSION" = "7.0" ]; then php ocular.phar code-coverage:upload --format=php-clover ./clover.xml; fi
+  - if [ $TEST_COVERAGE == 'true' ]; then wget https://scrutinizer-ci.com/ocular.phar; fi
+  - if [ $TEST_COVERAGE == 'true' ]; then php ocular.phar code-coverage:upload --format=php-clover ./clover.xml; fi
