@@ -12,25 +12,31 @@ env:
 matrix:
   include:
     - php: 7
+      env:
         - DEPS=lowest
     - php: 7
+      env:
         - TEST_COVERAGE=true
     - php: 7.1
+      env:
         - DEPS=lowest
     - php: 7.1
-    - php: hhvm
+    - php: hhvm-3.12
+      env:
         - DEPS=lowest
         - HHVMPHP7="yes"
-    - php: hhvm
+    - php: hhvm-3.12
       env:
         - HHVMPHP7="yes"
     - php: hhvm-nightly
+      env:
         - DEPS=lowest
         - HHVMPHP7="yes"
     - php: hhvm-nightly
       env:
         - HHVMPHP7="yes"
     - php: nightly
+      env:
         - DEPS=lowest
     - php: nightly
   allow_failures:
@@ -39,7 +45,7 @@ matrix:
 
 before_script:
  - if [[ $HHVMPHP7 == "yes" ]]; then echo hhvm.php7.all=1 >> /etc/hhvm/php.ini; fi
- - composer self-update
+ - travis_retry composer self-update
 
 install:
   - if [[ $DEPS == 'latest' ]]; then travis_retry composer update -o --prefer-source ; fi
@@ -47,9 +53,9 @@ install:
   - composer show
 
 script:
- - vendor/bin/phpunit --coverage-clover ./clover.xml
- - vendor/bin/php-cs-fixer fix src --level=psr2 --dry-run -vv
+ - if [ $TEST_COVERAGE == 'true' ]; then vendor/bin/phpunit --coverage-clover ./clover.xml ; fi
+ - if [ $TEST_COVERAGE == 'true' ]; then vendor/bin/php-cs-fixer fix src --level=psr2 --dry-run -vv ; fi
 
 after_script:
-  - if [ $TEST_COVERAGE == 'true' ]; then wget https://scrutinizer-ci.com/ocular.phar; fi
+  - if [ $TEST_COVERAGE == 'true' ]; then curl -O -L https://scrutinizer-ci.com/ocular.phar; fi
   - if [ $TEST_COVERAGE == 'true' ]; then php ocular.phar code-coverage:upload --format=php-clover ./clover.xml; fi
