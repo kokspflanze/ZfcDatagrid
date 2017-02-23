@@ -56,6 +56,8 @@ install:
  - composer show
 
 script:
+ - if [[ $HHVMPHP7 == "yes" ]]; then echo hhvm.php7.all=1 >> /etc/hhvm/php.ini; fi
+ - if [[ $HHVMPHP7 == "yes" ]]; cat /etc/hhvm/php.ini; fi
  - vendor/bin/phpunit --coverage-clover ./clover.xml
  - vendor/bin/php-cs-fixer fix src --level=psr2 --dry-run -vv
 
